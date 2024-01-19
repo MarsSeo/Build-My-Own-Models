@@ -5,6 +5,7 @@ import math
 import torch
 import torch.nn as nn
 
+# 1. Input Embedding 
 class InputEmbedding(nn.Module): 
     def __init__(self, vocab_size, d_model):
         super().__init__()
@@ -14,6 +15,7 @@ class InputEmbedding(nn.Module):
     def forward(self, x):
         return self.embedding(x) * math.sqrt(self.d_model)
 
+# 2. Positional Encoding
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, seq_len, dropout:float):
         super().__init__()
@@ -30,6 +32,7 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.shape[1],:].requires_grad_(False)
         return self.dropout(x)
 
+# 3. Layer Normalization (eps set to 1e-6)
 class LayerNormalization(nn.Module):
     def __init__(self, eps= 1e-6):
         super().__init__()
@@ -41,6 +44,7 @@ class LayerNormalization(nn.Module):
         std = x.std(dim = -1, keepdim = True)
         return self.alpha * (x - mean) / (std + self.eps) + self.bias
 
+# 4. Feed Forward (d_ff: 2048)
 class FeedForwardLayer(nn.Module):
     def __init__(self, d_model, d_ff, dropout):
         super().__init__()
@@ -52,7 +56,8 @@ class FeedForwardLayer(nn.Module):
     def forward(self, x):
         return self.layer_2(self.dropout(torch.relu((self.layer_1(x)))))
 
-class MultiHeadAttentionBlock(nn.Module):
+# 5. Multi Head Attention (h:8)
+class MultiHeadAttentionLayer(nn.Module):
     def __init__(self, d_model, h, dropout):
         super().__init__()
         self.h = h
@@ -64,7 +69,8 @@ class MultiHeadAttentionBlock(nn.Module):
         self.w_k = nn.Linear(self.d_model, self.d_model)
         self.w_v = nn.Linear(self.d_model, self.d_model)
         self.w_o = nn.Linear(self.d_model, self.d_model)
-      
+
+    # calculate attention score
     def attention(self, query, key, value, mask):
         attention_scores = (query @ key.transpose(-1, -2)) / math.sqrt(self.d_k)
         if mask is not None:
@@ -94,6 +100,7 @@ class ResidualConnection(nn.Module):
     def forward(self, x, sublayer):
         return x + self.dropout(sublayer(self.norm(x)))
 
+# 6. Encoder Block (two Residual Connectuions)
 class EncoderBlock(nn.Module):
     def __init__(self, self_attention_block: MultiHeadAttentionBlock, feed_forward_block: FeedForwardLayer, dropout: float) -> None:
         super().__init__()
@@ -106,6 +113,7 @@ class EncoderBlock(nn.Module):
         x = self.residual_connections[1](x, self.feed_forward_block)
         return x
 
+# 7. Encoder (n_layer: 6)
 class Encoder(nn.Module):
     def __init__(self, layers: nn.ModuleList) -> None:
         super().__init__()
