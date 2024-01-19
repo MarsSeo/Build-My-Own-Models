@@ -25,6 +25,7 @@ class PositionalEncoding(nn.Module):
         div_term = torch.exp(torch.arange(0, self.d_model, 2) * -(math.log(10000.0) / self.d_model))
         self.pe[:, 0::2] = torch.sin(position * div_term) ; self.pe[:, 1::2] = torch.cos(position * div_term)
         self.pe = self.pe.unsqueeze(0)
+        
     def forward(self, x):
         x = x + self.pe[:, :x.shape[1],:].requires_grad_(False)
         return self.dropout(x)
@@ -43,8 +44,8 @@ class LayerNormalization(nn.Module):
 class FeedForwardLayer(nn.Module):
     def __init__(self, d_model, d_ff, dropout):
         super().__init__()
-        self.d_model = d_model
         self.d_ff = d_ff
+        self.d_model = d_model
         self.dropout = nn.Dropout(dropout)
         self.layer_1 = nn.Linear(self.d_model, self.d_ff)
         self.layer_2 = nn.Linear(self.d_ff, self.d_model)
@@ -69,7 +70,7 @@ class MultiHeadAttentionBlock(nn.Module):
         if mask is not None:
             attention_scores.masked_fill(mask ==0, 1e-9)
         attention_scores = attention_scores.softmax(dim = -1)
-        print(attention_scores.shape)
+        # print(attention_scores.shape)
         attention_scores = self.dropout(attention_scores)
         return (attention_scores @ value), attention_scores
 
