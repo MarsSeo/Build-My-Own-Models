@@ -91,6 +91,7 @@ class MultiHeadAttentionLayer(nn.Module):
         attention_scores = attention_scores.transpose(1, 2).contiguous().view(attention_scores.shape[0], -1, self.h * self.d_k)
         return self.w_o(attention_scores)
 
+# 6. Residual Connection (dropout, normalization only applied to the sublayer)
 class ResidualConnection(nn.Module):
     def __init__(self, dropout):
         super().__init__()
