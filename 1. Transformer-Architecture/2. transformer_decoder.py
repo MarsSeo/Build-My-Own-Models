@@ -1,4 +1,4 @@
-class DecoderBlock(nn.Module):
+class DecoderBlock(nn.Module): # 3 Residual Connections include cross attention 
     def __init__(self, self_attention_block: MultiHeadAttentionBlock, cross_attention_block: MultiHeadAttentionBlock, feed_forward_block: FeedForwardBlock, dropout: float) -> None:
         super().__init__()
         self.feed_forward_block = feed_forward_block
