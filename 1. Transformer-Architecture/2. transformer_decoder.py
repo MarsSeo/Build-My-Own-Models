@@ -12,7 +12,7 @@ class DecoderBlock(nn.Module): # 3 Residual Connections include cross attention
         x = self.residual_connections[2](x, self.feed_forward_block)
         return x
 
-class Decoder(nn.Module):
+class Decoder(nn.Module): # same layers
     def __init__(self, layers: nn.ModuleList) -> None:
         super().__init__()
         self.layers = layers
