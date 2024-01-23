@@ -6,6 +6,14 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 
+import numpy as np 
+import pandas as pd
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
+
 # 1. DataLoad (Can use image dataset such as MNIST)
 class DataLoad(Dataset):
     def __init__(self, dataframe, train_or_test = 1):
@@ -48,9 +56,10 @@ class AutoEncoder(nn.Module):
         return torch.sigmoid(x)
 
 # 3. train model (need to define criterion, optimizer)
-def train_model(epochs, dataloader, model, criterion, optimizer):
+def train_model(epochs, dataloader, model, criterion, optimizer, device):
     for epoch in range(epochs):
         total_loss = 0
+        model = model.to(device)
         for data in dataloader:
             inputs, targets = data    
             inputs, targets = inputs.to(device), targets.to(device)
